@@ -32,4 +32,4 @@ GoIT-Python-Core-AsisstantProject
 <a>delete note </a> </p>
 <a>sorting files </a> </p>
 <a>read note </a> </p>
-<a>show all tags </a> </p>
+<a>show all tags </a>
