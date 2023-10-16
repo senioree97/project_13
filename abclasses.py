@@ -71,64 +71,43 @@ class Contact():
             self.birthday,
         )
     #   --------------------------------Chek parameters----------------------------
-    def init(self, phone):
-        self._phone = "" 
-        self.phone = phone 
-
+       
+    #Правильность ввода номера телефона
     @property
     def phone(self):
         return self._phone
 
-
     @phone.setter
-    def phone(self, value):
-        if len(str(value)) == 10:  # Перевірка на довжину номера
-            self._phone = value
-        else:
-            raise ValueError("Phone number must have 10 digits")
-        
-     #Правильность ввода номера телефона
-    def validate_phone(self, phone: str):
+    def phone(self, phone: str):
         san_phone = re.sub(r'[-)( ]', '', phone)
         if re.match('^\\+380\d{9}$', san_phone):
-            self.validate_phone = san_phone
+            self._phone = san_phone
         else:
             raise ValueError("Phone number is not valid")
     #-------email checking_____________________________________________
-
-    def init(self, email):
-        self.email = "" 
-        self.email = email 
-
+    #Правильность ввода электронной почты
     @property
     def email(self):
-        return self.email
+        return self._email
 
     @email.setter
-    #Правильность ввода электронной почты
-    def validate_email(self, email: str):
+    def email(self, email: str):
         if re.match('^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$', email):
-            self.validate_email = email 
+            self._email = email 
         else:
             raise ValueError("Email is not valid")
         
 
     #-------birthday checking_____________________________________________
-        
-    def init(self, birthday):
-        self.birthday = "" 
-        self.birthday = birthday 
-
+    #правильность ввода даты
     @property
     def birthday(self):
-        return self.birthday
+        return self._birthday
 
     @birthday.setter
-
-    #правильность ввода даты
-    def validate_birthday(self, date):
+    def birthday(self, date):
         if re.match('^\d{2}.\d{2}.\d{4}$', date): 
-            self.validate_birthday = date 
+            self._birthday = date 
         else:
             raise ValueError("Birthday is not valid")
     
