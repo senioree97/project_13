@@ -71,10 +71,10 @@ class Contact():
     @phone.setter
     def phone(self, phone: str):
         san_phone = re.sub(r'[-)( ]', '', phone)
-        if re.match('^\\0\d{11}$', san_phone) or san_phone == '':
+        if re.match('^(+?\d{1,2}[- ]?)?\d{10,15}$', san_phone) or san_phone == '':
             self._phone = san_phone
         else:
-            raise ValueError("Phone number is not valid")
+            ui.show_red_message("Phone number is not valid")
         
     #Правильность ввода электронной почты
     @property
@@ -86,7 +86,7 @@ class Contact():
         if re.match('^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$', email) or email == '':
             self._email = email 
         else:
-            raise ValueError("Email is not valid")
+            ui.show_red_message('Wrong email format')
 
     #Правильность ввода даты
     @property
@@ -98,7 +98,7 @@ class Contact():
         if re.match('^\d{2}.\d{2}.\d{4}$', date) or date == '': 
             self._birthday = date 
         else:
-            raise ValueError("Birthday is not valid")
+            ui.show_red_message("Birthday is not valid")
         
      # Выводит список контактов у которых день рождения через n_days от текущей даты
     def nearby_birthday(self, n_days):
@@ -110,6 +110,22 @@ class Contact():
             new_year_future = future - 365
             future = 365
         fut_list = []
+        for key, value in self.contacts.items(): # Перебираем словари по именам
+            for i, j in value.items(): # Заходим у внутренний словарь чтоб найти дату дня рождения
+                if i == 'Birthday':
+                    s = datetime.strptime(j, '%d.%m.%Y').timetuple().tm_yday # Преобразуем др в число дней с начала года
+                    if s <= future and s >= now or s >= 1 and s <= new_year_future:
+                        fut_list.append(key)
+                    else:
+                        continue
+                else:
+                    continue
+        if fut_list != []:
+            ui.show_red_message(f"Following users are celebrating birthdays in the next {n_days} days:")
+        else:
+            ui.show_red_message(f'No contacts are celebrating their birthday in the next {n_days} days')
+        result = ", ".join(fut_list)
+        return result
     
 
 class AddressBook(UserDict):
