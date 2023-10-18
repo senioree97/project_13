@@ -67,7 +67,10 @@ class Contact():
 
     def __repr__(self) -> str:
         return '-' * 50 + f'\n\nSurname: {self.surname}\nName: {self.name}\nPhones: {", ".join(phone for phone in self.phones)}\nEmail: {self.email}\nBirthday: {self.birthday}\nAddress: {self.address}\n\n' + '-' * 50
-
+    
+    def __str__(self):
+        return 'Contact: {:<10} | {:<10} | {:^10} | {:<15} | {:<20} | {:<5}'.format(self.name, self.surname, self.birthday, self.email, '; '.join(p for p in self.phones), self.address)
+    
     @property
     def phones(self):
         return self._phones
@@ -102,8 +105,6 @@ class Contact():
         else:
             raise InvalidFormat(f"Invalid Birthday format. Use -> dd.mm.yyyy")
     
-    def __repr__(self) -> str:
-        return '-' * 50 + f'\n\nSurname: {self.surname}\nName: {self.name}\nPhones: {", ".join(phone for phone in self.phones)}\nEmail: {self.email}\nBirthday: {self.birthday}\nAddress: {self.address}\n\n' + '-' * 50
     
 def get_path(file_name):
         current_dir = os.path.dirname(os.path.abspath(__file__))  
@@ -113,6 +114,12 @@ class AddressBook(UserDict):
     def __init__(self):
         super().__init__()
         self.notes = []
+        self.contacts_on_page = 10
+        self.count_pages = 0
+        self.n_page = 1
+        self.idx = 0
+        self.data_list = []
+        
 
     def add_contact(self, ui , contact: Contact):
             self.data.update({contact.surname:contact})
@@ -124,11 +131,7 @@ class AddressBook(UserDict):
             contact.add_email(ui.user_input('Email [Enter to skip]: '))
             contact.add_address(ui.user_input('Address [Enter to skip]: '))
         
-
-    def read_contact(self, name: str):
-        pass
-
-
+    
     def update_contact(self, ui, contact: Contact):
         ui.show_green_message('This command will guide you through updating contact:\n')
         new_surname = ui.user_input(f'Surname: {contact.surname} [Enter to skip]: ') 
@@ -169,8 +172,14 @@ class AddressBook(UserDict):
         else:
             ui.show_red_message("No contact with birthday within your date.")
 
-    def show_contacts(self):
-        pass
+    def show_contacts(self, ui, contacts_on_page=10):
+        if len(self.data)==0:
+            ui.show_message("AddressBook is empty")
+        else:
+            iterator = self.iterator(contacts_on_page)
+            for page in iterator:
+                ui.show_message(page)
+
     
     def delete_all(self, ui):
         ui.show_red_message('Are you sure you want to clear the address book?\n')
@@ -206,6 +215,48 @@ class AddressBook(UserDict):
             ...
         self.log(f'Notes loaded')
         return self.data, self.notes
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        
+        if self.n_page <= self.count_pages:
+            page_list = []
+            data_slice = self.data_list[self.idx:self.contacts_on_page*self.n_page]
+            result = ''
+            for key, record in data_slice:
+                if data_slice.index((key, record)) == (len(data_slice) - 1):
+                    self.n_page += 1
+                page_list.append(record)
+                self.idx += 1
+            
+            result = '\n'.join(str(p) for p in page_list)   
+            return f'Page #{self.n_page - 1}\n{result}'
+        
+        raise StopIteration
+    
+    def iterator(self, contacts_on_page=10):
+        try:
+            self.contacts_on_page = int(contacts_on_page)
+        except ValueError:
+            raise ValueError("contacts_on_page must be int")
+        
+        if len(self.data)==0:
+            return self
+        
+        count_pages = len(self.data)/self.contacts_on_page
+        pages = int(count_pages)
+        if count_pages > pages or pages == 0:
+            self.count_pages = pages + 1
+        else:
+            self.count_pages = pages
+        
+        self.data_list = [record for record in self.data.items()]
+        self.idx = 0
+        self.n_page = 1
+        return self
+    
 
         
     

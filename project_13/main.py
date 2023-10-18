@@ -83,6 +83,14 @@ def show_all_command(*_):
     for contact in ab.values():
             ui.show_message(contact)
 
+def show_contacts_command(*_):
+    ui.show_green_message('Enter the number of contacts per page (default=10)  [Enter to skip]:')
+    number_contacts = ui.user_input('>')
+    if number_contacts:
+        ab.show_contacts(ui, number_contacts)
+    else:
+        ab.show_contacts(ui)
+
 
 def sort_command(*_):
     ui.show_green_message("Enter path you want to be sorted")
@@ -170,6 +178,7 @@ CMD_LIST = {
     find_command: ("find",),
     change_command: ("change",),
     show_all_command: ("show all", "show"),
+    show_contacts_command: ("pages", "contacts"),
     delete_all_command: ("delete all", "remove all", "clean"), 
     delete_command: ("delete", "del", "remove"),
     help_command: ("help", "h", "?"),
